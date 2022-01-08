@@ -114,7 +114,38 @@ function addEmployee() {
       default: '1 Sales',
     }
   ]).then(answer => {
-    myquery.addRole(title, salary, parseInt(answer.department));
+    myquery.addEmployee(fName, lName, parseInt(answer.role), parseInt(answer.manager));
+  }).catch(err => {
+    console.log(err);
+  });
+}
+
+function updateRole(){
+  inquirer.prompt([
+    {
+      type: 'input',
+      name: 'id',
+      message: 'What is the employee ID? (REQUIRED) ',
+      validate: idInput => {
+        idInput = parseInt(idInput);
+        if (isNaN(idInput)) {
+          console.log("\nPlease enter the numeric Employee ID!");
+          return false;
+        } else {
+          return true;
+        }
+      }
+    },
+    {
+      type: 'list',
+      name: 'role',
+      message: "Please select the new role of the employee!",
+      choices: ['1 Sales Person', '2 Sales Manager', '3 Lead Engineer','4 Software Engineer',
+                '5 Account Manager', '6 Accountant', '7 Legal Team Lead', '8 Lawyer'],
+      default: '1 Sales Person',
+    }
+  ]).then(answer => {
+    myquery.updateEmployee(id, parseInt(answer.role));
   }).catch(err => {
     console.log(err);
   });
@@ -152,7 +183,6 @@ function toDo(){
     console.log(err);
   });
 }
-
 
 db.connect(err => {
   if (err) throw err;
