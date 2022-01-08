@@ -77,69 +77,95 @@ function addRole(){
 
 // Input for Adding Employee
 function addEmployee() {
-  inquirer.prompt([
-    {
-      type: 'input',
-      name: 'fName',
-      message: "What is the employee's first name? (REQUIRED) ",
-      validate: fNameInput => {
-        if (!fNameInput) {
-          console.log("\nPlease enter the First Mame of the employee!");
-          return false;
-        } else {
-          return true;
-        }
-      }
-    },
-    {
-      type: 'input',
-      name: 'lName',
-      message: "What is the employee's last name? (REQUIRED) ",
-      validate: lNameInput => {
-        if (!lNameInput) {
-          console.log("\nPlease enter the Last Name of the employee!");
-          return false;
-        } else {
-          return true;
-        }
-      }
-    },
-    {
-      type: 'list',
-      name: 'role',
-      message: "Please select the employee's role!",
-      choices: ['1 Sales Person', '2 Sales Manager', '3 Lead Engineer','4 Software Engineer',
-                '5 Account Manager', '6 Accountant', '7 Legal Team Lead', '8 Lawyer'],
-      default: '1 Sales Person',
-    },
-    {
-      type: 'list',
-      name: 'manager',
-      message: "Please select the employee's manager!",
-      choices: ['1 Gina Martinez', '3 Jimbo White', '5 Johny Walker','7 Ever Lasting'],
-      default: '1 Sales',
+  // Get the roles list for dynamic list of choices
+  const sqlRole = `SELECT CONCAT(id, ' ', title) AS title FROM role`;
+  db.query(sqlRole, (err, result) => {
+    if (err){
+      return console.log(err.message);
     }
-  ]).then(answer => {
-    myquery.addEmployee(answer.fName, answer.lName, parseInt(answer.role), parseInt(answer.manager));
-    toDo();
-  }).catch(err => {
-    console.log(err);
+    const roles = result.map(function(item) {
+      return item['title'];
+    });
+
+    // Get the Manager and Lead list for dynamic list of choices
+    const sqlMgr = `SELECT CONCAT(e.id, ' ', e.first_name, ' ', e.last_name, ' - ', r.title) AS Manager 
+                    FROM employee e
+                      JOIN role r ON r.id=e.role_id
+                      WHERE r.title like '%Manager%' OR r.title like '%Lead%'`;
+    db.query(sqlMgr, (err, result) => {
+      if (err){
+        return console.log(err.message);
+      }
+      const managers = result.map(function(item) {
+        return item['Manager'];
+      });
+
+      // Get the required Info
+      inquirer.prompt([
+        {
+          type: 'input',
+          name: 'fName',
+          message: "What is the employee's first name? (REQUIRED) ",
+          validate: fNameInput => {
+            if (!fNameInput) {
+              console.log("\nPlease enter the First Mame of the employee!");
+              return false;
+            } else {
+              return true;
+            }
+          }
+        },
+        {
+          type: 'input',
+          name: 'lName',
+          message: "What is the employee's last name? (REQUIRED) ",
+          validate: lNameInput => {
+            if (!lNameInput) {
+              console.log("\nPlease enter the Last Name of the employee!");
+              return false;
+            } else {
+              return true;
+            }
+          }
+        },
+        {
+          type: 'list',
+          name: 'role',
+          message: "Please select the employee's role!",
+          choices: roles,
+          default: roles[0],
+        },
+        {
+          type: 'list',
+          name: 'manager',
+          message: "Please select the employee's manager!",
+          choices: managers,
+          default: managers[0],
+        }
+      ]).then(answer => {
+        myquery.addEmployee(answer.fName, answer.lName, parseInt(answer.role), parseInt(answer.manager));
+        toDo();
+      }).catch(err => {
+        console.log(err);
+      });
+    });
   });
 }
 
 
 // Input for Updating Employee Role
 function updateRole(){
+  // Get list of Roles for dynamic list of choices
   const sql = `SELECT CONCAT(id, ' ', title) AS title FROM role`;
-  
   db.query(sql, (err, result) => {
     if (err){
       return console.log(err.message);
     }
-    console.log(result);
     const roles = result.map(function(item) {
       return item['title'];
     });
+
+    // Select a new role for the employee
     inquirer.prompt([
       {
         type: 'input',
@@ -163,8 +189,6 @@ function updateRole(){
         default: roles[0],
       }
     ]).then(answer => {
-      console.log(answer.role);
-      console.log(answer.id);
       myquery.updateEmployee(answer.id, parseInt(answer.role));
       toDo();
     }).catch(err => {
@@ -173,17 +197,20 @@ function updateRole(){
   });
 }
 
-// Pause to see the tables before clearing the screen
-function pressAnyKey(){
+// Confirm if the user want to go back to the main menu
+function goToMain(){
   inquirer.prompt([
     {
       type: 'confirm',
-      name: 'anyKey',
-      message: "Continue...",
+      name: 'mainMenu',
+      message: "Go back to the main menu ",
       default: true
     }
   ]).then(answer => {
-    console.clear();
+    if(!answer.mainMenu) {
+      console.log("Good Bye...");
+      db.end();
+    }
     toDo();
   }).catch(err => {
     console.log(err);
@@ -192,9 +219,7 @@ function pressAnyKey(){
 
 // Main Input prompt
 function toDo(){
-  // console.clear();
-  console.log("\n");
-  console.log(`Connected to ${db.config.database} database`);
+  console.clear();
   inquirer.prompt([
     {
       type: 'list',
@@ -207,16 +232,15 @@ function toDo(){
     }
   ]).then(answer => {
     answer = JSON.stringify(answer);
-    console.clear();
     if (answer.includes("all departments")) {
       myquery.viewDepartments();
-      pressAnyKey();
+      goToMain();
     } else if (answer.includes("all roles")) {
       myquery.viewRoles();
-      pressAnyKey();
+      goToMain();
     } else if (answer.includes("all employees")) {
       myquery.viewEmployees();
-      pressAnyKey();
+      goToMain();
     } else if (answer.includes("Add a department")) {
       addDept();
     } else if (answer.includes("Add a role")) {
@@ -227,6 +251,7 @@ function toDo(){
       updateRole();
     } else {
       // Close connection to the Database
+      console.log("Good Bye...");
       db.end();
     }
   }).catch(err => {
@@ -239,4 +264,3 @@ db.connect(err => {
   if (err) throw err;
   toDo();
 });
-

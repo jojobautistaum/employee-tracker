@@ -77,9 +77,9 @@ class MyQuery {
 
   // Query for adding employee
   addEmployee(fName, lName, roleId, managerId) {
-    const sql = `INSERT INTO employee(firt_name, last_name, role_id, manager_id)
+    const sql = `INSERT INTO employee(first_name, last_name, role_id, manager_id)
                    VALUES('${fName}', '${lName}', '${roleId}', '${managerId}')`;
-
+    console.log(sql);
     db.query(sql, (err, result) => {
       if (err){
         return console.log(err.message);
