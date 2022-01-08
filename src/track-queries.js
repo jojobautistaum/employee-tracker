@@ -47,15 +47,15 @@ class MyQuery {
     });
   }
   
-  addDepartment(dept_name) {
+  addDepartment(department) {
     const sql = `INSERT INTO department(name)
-                   VALUES(${dept_name})`;
+                   VALUES(${department})`;
     
     db.query(sql, (err, result) => {
       if (err){
         return console.log(err.message);
       }
-      return JSON.stringify(result);
+      console.log(result);
     });
   }
 
@@ -67,7 +67,7 @@ class MyQuery {
       if (err){
         return console.log(err.message);
       }
-      return JSON.stringify(result);
+      console.log(result);
     });
   }
 
@@ -79,7 +79,7 @@ class MyQuery {
       if (err){
         return console.log(err.message);
       }
-      return JSON.stringify(result);
+      console.log(result);
     });
   }
 
@@ -90,7 +90,7 @@ class MyQuery {
       if (err){
         return console.log(err.message);
       }
-      return JSON.stringify(result);
+      console.log(result);
     });
   }
 

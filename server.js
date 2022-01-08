@@ -5,11 +5,12 @@ const inquirer = require('inquirer');
 
 const myquery = new MyQuery();
 
+// Inquirer for adding Department
 function addDept(){
   inquirer.prompt([
     {
       type: 'input',
-      name: 'dept_name',
+      name: 'departname',
       message: 'What is the name of the new Department? (REQUIRED) ',
       validate: deptInput => {
         if (!deptInput) {
@@ -21,12 +22,14 @@ function addDept(){
       }
     }
   ]).then(answer => {
-    myquery.addDepartment(dept_name);
+    myquery.addDepartment(answer.department);
+    toDo();
   }).catch(err => {
     console.log(err);
   });
 }
 
+// Inquirer for adding Role
 function addRole(){
   inquirer.prompt([
     {
@@ -64,12 +67,14 @@ function addRole(){
       default: '1 Sales',
     }
   ]).then(answer => {
-    myquery.addRole(title, salary, parseInt(answer.department));
+    myquery.addRole(answer.title, answer.salary, parseInt(answer.department));
+    toDo();
   }).catch(err => {
     console.log(err);
   });
 }
 
+// Inquirer for Adding Employee
 function addEmployee() {
   inquirer.prompt([
     {
@@ -114,12 +119,14 @@ function addEmployee() {
       default: '1 Sales',
     }
   ]).then(answer => {
-    myquery.addEmployee(fName, lName, parseInt(answer.role), parseInt(answer.manager));
+    myquery.addEmployee(answer.fName, answer.lName, parseInt(answer.role), parseInt(answer.manager));
+    toDo();
   }).catch(err => {
     console.log(err);
   });
 }
 
+// Inquirer for Updating Employee Role
 function updateRole(){
   inquirer.prompt([
     {
@@ -145,12 +152,14 @@ function updateRole(){
       default: '1 Sales Person',
     }
   ]).then(answer => {
-    myquery.updateEmployee(id, parseInt(answer.role));
+    myquery.updateEmployee(answer.id, parseInt(answer.role));
+    toDo();
   }).catch(err => {
     console.log(err);
   });
 }
 
+// Main function for Inquirer prompt
 function toDo(){
   inquirer.prompt([
     {
@@ -159,7 +168,7 @@ function toDo(){
       message: "What would you like to do? ",
       choices: ['View all departments', 'View all roles', 'View all employees', 
                 'Add a department', 'Add a role', 'Add an employee', 
-                'Update an employee role'],
+                'Update an employee role', 'Exit'],
       default: 'View all deparmtents',
     }
   ]).then(answer => {
@@ -176,14 +185,18 @@ function toDo(){
       addRole();
     } else if (answer.includes("Add an employee")) {
       addEmployee();
-    } else {
+    } else if (answer.includes("Update")) {
       updateRole();
+    } else {
+      // Close connection to the Database
+      db.end();
     }
   }).catch(err => {
     console.log(err);
   });
 }
 
+// Connec to the Database then run Inquirer
 db.connect(err => {
   if (err) throw err;
   toDo();
