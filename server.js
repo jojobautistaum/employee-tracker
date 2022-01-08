@@ -2,7 +2,6 @@ const express = require('express');
 const MyQuery = require('./src/track-queries');
 const db = require('./config/connection');
 const inquirer = require('inquirer');
-
 const myquery = new MyQuery();
 
 // Inquirer for adding Department
@@ -159,8 +158,27 @@ function updateRole(){
   });
 }
 
+// Pause to see the tables before clearing it
+function pressAnyKey(){
+  inquirer.prompt([
+    {
+      type: 'confirm',
+      name: 'anyKey',
+      message: "Continue...",
+      default: true
+    }
+  ]).then(answer => {
+    console.clear();
+    toDo();
+  }).catch(err => {
+    console.log(err);
+  });
+}
+
 // Main function for Inquirer prompt
 function toDo(){
+  console.clear();
+  console.log(`Connected to ${db.config.database} database`);
   inquirer.prompt([
     {
       type: 'list',
@@ -173,12 +191,16 @@ function toDo(){
     }
   ]).then(answer => {
     answer = JSON.stringify(answer);
+    console.clear();
     if (answer.includes("all departments")) {
       myquery.viewDepartments();
+      pressAnyKey();
     } else if (answer.includes("all roles")) {
       myquery.viewRoles();
+      pressAnyKey();
     } else if (answer.includes("all employees")) {
       myquery.viewEmployees();
+      pressAnyKey();
     } else if (answer.includes("Add a department")) {
       addDept();
     } else if (answer.includes("Add a role")) {
@@ -196,12 +218,9 @@ function toDo(){
   });
 }
 
-// Connec to the Database then run Inquirer
+// Connect to the Database then run Inquirer Prompts
 db.connect(err => {
   if (err) throw err;
   toDo();
-  console.log(`Connected to ${db.config.database} database`);
-  console.log(myquery.viewEmployees());
-  
 });
 
