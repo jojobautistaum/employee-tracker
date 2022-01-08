@@ -3,13 +3,15 @@ const MyQuery = require('./src/track-queries');
 const db = require('./config/connection');
 const inquirer = require('inquirer');
 const myquery = new MyQuery();
+// const util = require('util');
+// const query = util.promisify(db.query).bind(db);
 
-// Inquirer for adding Department
+// Input for adding Department
 function addDept(){
   inquirer.prompt([
     {
       type: 'input',
-      name: 'departname',
+      name: 'department',
       message: 'What is the name of the new Department? (REQUIRED) ',
       validate: deptInput => {
         if (!deptInput) {
@@ -28,7 +30,7 @@ function addDept(){
   });
 }
 
-// Inquirer for adding Role
+// Input for Adding Role
 function addRole(){
   inquirer.prompt([
     {
@@ -73,7 +75,7 @@ function addRole(){
   });
 }
 
-// Inquirer for Adding Employee
+// Input for Adding Employee
 function addEmployee() {
   inquirer.prompt([
     {
@@ -125,40 +127,53 @@ function addEmployee() {
   });
 }
 
-// Inquirer for Updating Employee Role
+
+// Input for Updating Employee Role
 function updateRole(){
-  inquirer.prompt([
-    {
-      type: 'input',
-      name: 'id',
-      message: 'What is the employee ID? (REQUIRED) ',
-      validate: idInput => {
-        idInput = parseInt(idInput);
-        if (isNaN(idInput)) {
-          console.log("\nPlease enter the numeric Employee ID!");
-          return false;
-        } else {
-          return true;
-        }
-      }
-    },
-    {
-      type: 'list',
-      name: 'role',
-      message: "Please select the new role of the employee!",
-      choices: ['1 Sales Person', '2 Sales Manager', '3 Lead Engineer','4 Software Engineer',
-                '5 Account Manager', '6 Accountant', '7 Legal Team Lead', '8 Lawyer'],
-      default: '1 Sales Person',
+  const sql = `SELECT CONCAT(id, ' ', title) AS title FROM role`;
+  
+  db.query(sql, (err, result) => {
+    if (err){
+      return console.log(err.message);
     }
-  ]).then(answer => {
-    myquery.updateEmployee(answer.id, parseInt(answer.role));
-    toDo();
-  }).catch(err => {
-    console.log(err);
+    console.log(result);
+    const roles = result.map(function(item) {
+      return item['title'];
+    });
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'id',
+        message: 'What is the employee ID? (REQUIRED) ',
+        validate: idInput => {
+          idInput = parseInt(idInput);
+          if (isNaN(idInput)) {
+            console.log("\nPlease enter the numeric Employee ID!");
+            return false;
+          } else {
+            return true;
+          }
+        }
+      },
+      {
+        type: 'list',
+        name: 'role',
+        message: "Please select the new role of the employee!",
+        choices: roles,
+        default: roles[0],
+      }
+    ]).then(answer => {
+      console.log(answer.role);
+      console.log(answer.id);
+      myquery.updateEmployee(answer.id, parseInt(answer.role));
+      toDo();
+    }).catch(err => {
+      console.log(err);
+    });
   });
 }
 
-// Pause to see the tables before clearing it
+// Pause to see the tables before clearing the screen
 function pressAnyKey(){
   inquirer.prompt([
     {
@@ -175,9 +190,10 @@ function pressAnyKey(){
   });
 }
 
-// Main function for Inquirer prompt
+// Main Input prompt
 function toDo(){
-  console.clear();
+  // console.clear();
+  console.log("\n");
   console.log(`Connected to ${db.config.database} database`);
   inquirer.prompt([
     {

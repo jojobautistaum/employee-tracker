@@ -3,10 +3,6 @@ const db = require ('../config/connection');
 // Class for select, insert and update queries
 class MyQuery {
 
-  // constructor(sql){
-  //   this.sql = sql;
-  // }
-
   // Show all rows in the department table
   viewDepartments() {
     const sql = `SELECT id as 'Department ID', name as Department FROM department`;
@@ -17,7 +13,6 @@ class MyQuery {
       }
       console.log("\n");
       console.table(result);
-      return result;
     });
   }
 
@@ -37,7 +32,6 @@ class MyQuery {
       }
       console.log("\n");
       console.table(result);
-      return result;
     });
   }
 
@@ -53,61 +47,57 @@ class MyQuery {
       }
       console.log("\n");
       console.table(result);
-      return result;
     });
   }
   
   // Query for adding department name
   addDepartment(department) {
     const sql = `INSERT INTO department(name)
-                   VALUES(${department})`;
-    
+                   VALUES('${department}')`;
     db.query(sql, (err, result) => {
       if (err){
         return console.log(err.message);
       }
-      console.log(result);
+      console.log(`\n ${department} has been added to the Department table!`);
     });
   }
 
   // Query for adding role or title
   addRole(title, salary, deptId) {
     const sql = `INSERT INTO role(title, salary, department_id)
-                   VALUES(${title}, ${salary}, ${deptId})`;
+                   VALUES('${title}', '${salary}', '${deptId}')`;
     
     db.query(sql, (err, result) => {
       if (err){
         return console.log(err.message);
       }
-      console.log(result);
+      console.log(`\n${title} has been added to the Role table`);
     });
   }
 
   // Query for adding employee
   addEmployee(fName, lName, roleId, managerId) {
     const sql = `INSERT INTO employee(firt_name, last_name, role_id, manager_id)
-                   VALUES(${fName}, ${lName}, ${roleId}, ${managerId})`;
+                   VALUES('${fName}', '${lName}', '${roleId}', '${managerId}')`;
 
     db.query(sql, (err, result) => {
       if (err){
         return console.log(err.message);
       }
-      console.log(result);
+      console.log(`\nWelcome our new employee: ${fName} ${lName}!`);
     });
   }
 
   // Query for updating role of an employee
   updateEmployee(employeeId, roleId) {
-    const sql = `UPDATE role SET role_id=${roleId} WHERE id=${employeeId}`;
-
+    const sql = `UPDATE employee SET role_id='${roleId}' WHERE id='${employeeId}'`;
     db.query(sql, (err, result) => {
       if (err){
         return console.log(err.message);
       }
-      console.log(result);
+      console.log(`\nRole for employee ID '${employeeId}' has been updated!`);
     });
   }
-
 }
 
 module.exports = MyQuery;
