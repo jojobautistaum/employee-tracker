@@ -3,8 +3,6 @@ const MyQuery = require('./src/track-queries');
 const db = require('./config/connection');
 const inquirer = require('inquirer');
 const myquery = new MyQuery();
-// const util = require('util');
-// const query = util.promisify(db.query).bind(db);
 
 // Input for adding Department
 function addDept(){
