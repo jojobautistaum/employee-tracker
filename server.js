@@ -2,7 +2,7 @@ const express = require('express');
 const MyQuery = require('./src/track-queries');
 const db = require('./config/connection');
 const inquirer = require('inquirer');
-const myquery = new MyQuery();
+const myQuery = new MyQuery();
 
 // Input for adding Department
 function addDept(){
@@ -21,8 +21,8 @@ function addDept(){
       }
     }
   ]).then(answer => {
-    myquery.addDepartment(answer.department);
-    toDo();
+    myQuery.addDepartment(answer.department);
+    return addMenu();
   }).catch(err => {
     console.log(err);
   });
@@ -30,46 +30,56 @@ function addDept(){
 
 // Input for Adding Role
 function addRole(){
-  inquirer.prompt([
-    {
-      type: 'input',
-      name: 'title',
-      message: 'What is the title of the new Role? (REQUIRED) ',
-      validate: titleInput => {
-        if (!titleInput) {
-          console.log("\nPlease enter a title of the new Role!");
-          return false;
-        } else {
-          return true;
-        }
-      }
-    },
-    {
-      type: 'input',
-      name: 'salary',
-      message: 'What is the salary for this new Role? (REQUIRED) ',
-      validate: salaryInput => {
-        salaryInput = parseInt(salaryInput);
-        if (isNaN(salaryInput)) {
-          console.log("\nPlease enter numeric number only for Salary!");
-          return false;
-        } else {
-          return true;
-        }
-      }
-    },
-    {
-      type: 'list',
-      name: 'department',
-      message: "Please select the department!",
-      choices: ['1 Sales', '2 Engineering', '3 Finance','4 Legal'],
-      default: '1 Sales',
+  // Get list of Roles for dynamic list of choices
+  const sql = `SELECT CONCAT(id, ' ', name) AS dept FROM department`;
+  db.query(sql, (err, result) => {
+    if (err){
+      return console.log(err.message);
     }
-  ]).then(answer => {
-    myquery.addRole(answer.title, answer.salary, parseInt(answer.department));
-    toDo();
-  }).catch(err => {
-    console.log(err);
+    const departments = result.map(function(item) {
+      return item['dept'];
+    });
+
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'title',
+        message: 'What is the title of the new Role? (REQUIRED) ',
+        validate: titleInput => {
+          if (!titleInput) {
+            console.log("\nPlease enter a title of the new Role!");
+            return false;
+          } else {
+            return true;
+          }
+        }
+      },
+      {
+        type: 'input',
+        name: 'salary',
+        message: 'What is the salary for this new Role? (REQUIRED) ',
+        validate: salaryInput => {
+          salaryInput = parseInt(salaryInput);
+          if (isNaN(salaryInput)) {
+            console.log("\nPlease enter numeric number only for Salary!");
+            return false;
+          } else {
+            return true;
+          }
+        }
+      },
+      {
+        type: 'list',
+        name: 'department',
+        message: "Please select the department!",
+        choices: departments,
+      }
+    ]).then(answer => {
+      myQuery.addRole(answer.title, answer.salary, parseInt(answer.department));
+      return addMenu();
+    }).catch(err => {
+      console.log(err);
+    });
   });
 }
 
@@ -97,6 +107,7 @@ function addEmployee() {
       const managers = result.map(function(item) {
         return item['Manager'];
       });
+      managers.push('0 None');
 
       // Get the required Info
       inquirer.prompt([
@@ -141,8 +152,8 @@ function addEmployee() {
           default: managers[0],
         }
       ]).then(answer => {
-        myquery.addEmployee(answer.fName, answer.lName, parseInt(answer.role), parseInt(answer.manager));
-        toDo();
+        myQuery.addEmployee(answer.fName, answer.lName, parseInt(answer.role), parseInt(answer.manager));
+        return addMenu();
       }).catch(err => {
         console.log(err);
       });
@@ -150,9 +161,8 @@ function addEmployee() {
   });
 }
 
-
 // Input for Updating Employee Role
-function updateRole(){
+function updateEmployeeRole(){
   // Get list of Roles for dynamic list of choices
   const sql = `SELECT CONCAT(id, ' ', title) AS title FROM role`;
   db.query(sql, (err, result) => {
@@ -187,8 +197,55 @@ function updateRole(){
         default: roles[0],
       }
     ]).then(answer => {
-      myquery.updateEmployee(answer.id, parseInt(answer.role));
-      toDo();
+      myQuery.updateEmployeeRole(answer.id, parseInt(answer.role));
+      mainMenu();
+    }).catch(err => {
+      console.log(err);
+    });
+  });
+}
+
+// Input for Updating Employee Role
+function updateEmployeeManager(){
+  // Get list of Roles for dynamic list of choices
+  const sql = `SELECT CONCAT(e.id, ' ', e.first_name, ' ', e.last_name, ' - ', r.title) AS Manager 
+               FROM employee e
+                JOIN role r ON r.id=e.role_id
+                WHERE r.title like '%Manager%' OR r.title like '%Lead%'`;
+  db.query(sql, (err, result) => {
+    if (err){
+      return console.log(err.message);
+    }
+    const managers = result.map(function(item) {
+      return item['Manager'];
+    });
+    managers.push("0 None");
+
+    // Select a new role for the employee
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'id',
+        message: 'What is the employee ID? (REQUIRED) ',
+        validate: idInput => {
+          idInput = parseInt(idInput);
+          if (isNaN(idInput)) {
+            console.log("\nPlease enter the numeric Employee ID!");
+            return false;
+          } else {
+            return true;
+          }
+        }
+      },
+      {
+        type: 'list',
+        name: 'role',
+        message: "Please select the new manager of the employee!",
+        choices: managers,
+      }
+    ]).then(answer => {
+      myQuery.updateEmployeeManager(answer.id, parseInt(answer.role));
+      mainMenu();
     }).catch(err => {
       console.log(err);
     });
@@ -197,56 +254,122 @@ function updateRole(){
 
 // Confirm if the user want to go back to the main menu
 function goToMain(){
+  console.clear();
   inquirer.prompt([
     {
       type: 'confirm',
-      name: 'mainMenu',
+      name: 'main',
       message: "Go back to the main menu ",
       default: true
     }
   ]).then(answer => {
-    if(!answer.mainMenu) {
-      console.log("Good Bye...");
-      db.end();
+    if(answer.main) {
+      mainMenu();
     }
-    toDo();
+  }).catch(err => {
+    console.log(err);
+  });
+}
+
+// View Menu
+function viewMenu(){
+  console.clear();
+  inquirer.prompt([
+    {
+      type: 'list',
+      name: 'viewMenu',
+      message: "View Menu ",
+      choices: ['Departments', 'Roles', 'Employees', 'Main Menu'], 
+    }
+  ]).then(answer => {
+    answer = JSON.stringify(answer);
+    if (answer.includes("Departments")) {
+      myQuery.viewDepartments();
+    } else if (answer.includes("Roles")) {
+      myQuery.viewRoles();
+    } else if (answer.includes("Employees")) {
+      myQuery.viewEmployees();
+    } else {
+      return mainMenu();
+    }
+  }).then(result => {
+    console.clear();
+    return viewMenu();
+  }).catch(err => {
+    console.log(err);
+  });
+}
+
+// Add Menu
+function addMenu(){
+  console.clear();
+  inquirer.prompt([
+    {
+      type: 'list',
+      name: 'addMenu',
+      message: "Add Menu",
+      choices: ['Departments', 'Roles', 'Employees', 'Main Menu'], 
+    }
+  ]).then(answer => {
+    answer = JSON.stringify(answer);
+    if (answer.includes("Departments")) {
+      return addDept();
+    } else if (answer.includes("Roles")) {
+      return addRole();
+    } else if (answer.includes("Employees")) {
+      return addEmployee();
+    } else {
+      return mainMenu();
+    }
+  }).catch(err => {
+    console.log(err);
+  });
+}
+
+// Update Menu
+function updateMenu(){
+  console.clear();
+  inquirer.prompt([
+    {
+      type: 'list',
+      name: 'updateMenu',
+      message: "Update Menu",
+      choices: ["Employee's Role", "Employee's Manager", "Main Menu"], 
+    }
+  ]).then(answer => {
+    answer = JSON.stringify(answer);
+    if (answer.includes("Role")) {
+      return updateEmployeeRole();
+    } else if (answer.includes("Manager")) {
+      return updateEmployeeManager();
+    } else {
+      return mainMenu();
+    }
   }).catch(err => {
     console.log(err);
   });
 }
 
 // Main Input prompt
-function toDo(){
+function mainMenu(){
   console.clear();
   inquirer.prompt([
     {
       type: 'list',
-      name: 'toDo',
+      name: 'mainMenu',
       message: "What would you like to do? ",
-      choices: ['View all departments', 'View all roles', 'View all employees', 
-                'Add a department', 'Add a role', 'Add an employee', 
-                'Update an employee role', 'Exit'],
-      default: 'View all deparmtents',
+      choices: ['View', 'Add', 'Update', , 'Exit'],
+      default: 'View',
     }
   ]).then(answer => {
     answer = JSON.stringify(answer);
-    if (answer.includes("all departments")) {
-      myquery.viewDepartments();
-      goToMain();
-    } else if (answer.includes("all roles")) {
-      myquery.viewRoles();
-      goToMain();
-    } else if (answer.includes("all employees")) {
-      myquery.viewEmployees();
-      goToMain();
-    } else if (answer.includes("Add a department")) {
-      addDept();
-    } else if (answer.includes("Add a role")) {
-      addRole();
-    } else if (answer.includes("Add an employee")) {
-      addEmployee();
+    console.clear();
+    if (answer.includes("View")) {
+      return viewMenu();
+    } else if (answer.includes("Add")) {
+      return addMenu();
     } else if (answer.includes("Update")) {
-      updateRole();
+      return updateMenu();
     } else {
       // Close connection to the Database
       console.log("Good Bye...");
@@ -260,5 +383,5 @@ function toDo(){
 // Connect to the Database then run Inquirer Prompts
 db.connect(err => {
   if (err) throw err;
-  toDo();
+  mainMenu();
 });
