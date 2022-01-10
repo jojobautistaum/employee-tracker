@@ -49,17 +49,15 @@
   ### Total Budget by Department 
   ![Department-Budget](https://user-images.githubusercontent.com/90885263/148718626-a92db742-12c3-4066-9b83-2dd38243258d.jpg)
 
-
   ### Watch the video on how to use this App:
-  ![How to Use this App](https://user-images.githubusercontent.com/90885263/146711622-823b2840-9b11-4cc8-89cc-51b5c13cb33b.mp4)
+  ![How to Use this App](https://user-images.githubusercontent.com/90885263/148724720-bf472b99-377a-4403-8600-9fa2d86c5b71.mp4)
 
-  
   ## Tech/Framework <a id="tech"></a>
   * Node.js
   * Inquirer
   * MySQL
   * Dotenv
-  * JavaScript Class
+  * OOP - JavaScript Class
   * Screencastify
 
   ## License <a id="license"></a>
