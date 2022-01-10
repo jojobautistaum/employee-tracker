@@ -288,7 +288,8 @@ function viewMenu(){
       type: 'list',
       name: 'viewMenu',
       message: "View Menu ",
-      choices: ['Departments', 'Roles', 'Employees', 'Employee by Department', 'Employee by Manager'], 
+      choices: ['Departments', 'Roles', 'Employees', 'Employee by Department', 
+                'Employee by Manager', 'Total Department Budget'], 
     }
   ]).then(answer => {
     answer = JSON.stringify(answer);
@@ -300,12 +301,15 @@ function viewMenu(){
       myQuery.viewEmployees();
     } else if (answer.includes("by Department")) {
       myQuery.viewEmployeeByDepartment();
-    } else {
+    } else if (answer.includes("by Manager")) {
       myQuery.viewEmployeeByManager();
+    } else {
+      myQuery.viewBudgetByDepartment();
     }
     return goToMainMenu('View');
   }).catch(err => {
     console.log(err);
+
   });
 }
 
@@ -363,7 +367,7 @@ function mainMenu(){
       type: 'list',
       name: 'mainMenu',
       message: "Main Menu",
-      choices: ['View', 'Add', 'Update', , 'Exit'],
+      choices: ['View', 'Add', 'Update', 'Delete', 'Exit'],
       default: 'View',
     }
   ]).then(answer => {

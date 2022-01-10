@@ -20,7 +20,7 @@ class MyQuery {
   // Show all records from employee table joined to some info from role and department tables
   viewEmployees() {
     const sql = `SELECT e.id AS 'Employee ID', e.first_name AS 'First Name', e.last_name AS 'Last Name', 
-                    r.title as Role, d.name AS Department, r.salary AS Salary, 
+                    r.title as Role, d.name AS Department, CONCAT('$ ',FORMAT(r.salary, 2)) AS Salary, 
                     CONCAT(e2.first_name, ' ', e2.last_name) AS 'Manager/Lead'
                  FROM employee e
                     JOIN role r ON r.id = e.role_id
@@ -37,9 +37,26 @@ class MyQuery {
     });
   }
 
+  viewBudgetByDepartment() {
+    const sql = `SELECT d.name AS Department, CONCAT('$ ',FORMAT(SUM(r.salary), 2)) as 'Total Department Budget'
+                 FROM employee e
+                    JOIN role r ON r.id = e.role_id
+                    JOIN department d ON d.id = r.department_id
+                    LEFT JOIN employee e2 ON e.manager_id=e2.id
+                    GROUP BY d.name`;
+                   
+    db.query(sql, (err, result) => {
+      if (err){
+        return console.log(err.message);
+      }
+      console.log("\n");
+      console.table(result);
+    });
+  }
+
   viewEmployeeByManager() {
     const sql = `SELECT e.id AS 'Employee ID', e.first_name AS 'First Name', e.last_name AS 'Last Name', 
-                    r.title as Role, d.name AS Department, r.salary AS Salary, 
+                    r.title as Role, d.name AS Department, CONCAT('$ ',FORMAT(r.salary, 2)) AS Salary, 
                     CONCAT(e2.first_name, ' ', e2.last_name) AS 'Manager/Lead'
                  FROM employee e
                     JOIN role r ON r.id = e.role_id
@@ -58,7 +75,7 @@ class MyQuery {
 
   viewEmployeeByDepartment() {
     const sql = `SELECT e.id AS 'Employee ID', e.first_name AS 'First Name', e.last_name AS 'Last Name', 
-                    r.title as Role, d.name AS Department, r.salary AS Salary, 
+                    r.title as Role, d.name AS Department, CONCAT('$ ',FORMAT(r.salary, 2)) AS Salary, 
                     CONCAT(e2.first_name, ' ', e2.last_name) AS 'Manager/Lead'
                  FROM employee e
                     JOIN role r ON r.id = e.role_id
@@ -77,7 +94,7 @@ class MyQuery {
 
   // Show all records from role table joined to department table name
   viewRoles() {
-    const sql = `SELECT r.title as Role, r.id as Role_ID, d.name as Department, r.salary as Salary
+    const sql = `SELECT r.title as Role, r.id as Role_ID, d.name as Department, CONCAT('$ ',FORMAT(r.salary, 2)) as Salary
                  FROM role r
                     JOIN department d ON d.id=r.department_id
                     ORDER BY r.id`;
