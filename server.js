@@ -28,6 +28,8 @@ function addDept(){
   });
 }
 
+
+
 // Input for Adding Role
 function addRole(){
   // Get list of Roles for dynamic list of choices
@@ -194,7 +196,6 @@ function updateEmployeeRole(){
         name: 'role',
         message: "Please select the new role of the employee!",
         choices: roles,
-        default: roles[0],
       }
     ]).then(answer => {
       myQuery.updateEmployeeRole(answer.id, parseInt(answer.role));
@@ -252,6 +253,89 @@ function updateEmployeeManager(){
   });
 }
 
+// Input for deleting Department
+function deleteDept(){
+  // Get list of Department for dynamic list of choices
+  const sql = `SELECT CONCAT(id, ' ', name) AS dept FROM department`;
+  db.query(sql, (err, result) => {
+    if (err){
+      return console.log(err.message);
+    }
+    const departments = result.map(function(item) {
+      return item['dept'];
+    });
+
+    // Select the department to delete
+    inquirer.prompt([
+      {
+        type: 'list',
+        name: 'department',
+        message: 'Please select the department to be deleted.',
+        choices: departments,
+      }
+    ]).then(answer => {
+      myQuery.deleteDepartment(parseInt(answer.department));
+      return goToMainMenu('Delete');
+    }).catch(err => {
+      console.log(err);
+    });
+  });
+}
+
+// Input for deleting Role
+function deleteRole(){
+  // Get list of Roles for dynamic list of choices
+  const sql = `SELECT CONCAT(id, ' ', title) AS title FROM role`;
+  db.query(sql, (err, result) => {
+    if (err){
+      return console.log(err.message);
+    }
+    const roles = result.map(function(item) {
+      return item['title'];
+    });
+
+    // Select the role to delete
+    inquirer.prompt([
+      {
+        type: 'list',
+        name: 'role',
+        message: 'Please select the role to be deleted.',
+        choices: roles,
+      }
+    ]).then(answer => {
+      myQuery.deleteRole(parseInt(answer.role));
+      return goToMainMenu('Delete');
+    }).catch(err => {
+      console.log(err);
+    });
+  });
+}
+
+// Input employee ID to be deleted
+function deleteEmployee(){
+  inquirer.prompt([
+    {
+      type: 'input',
+      name: 'id',
+      message: 'Please enter the employee ID to be deleted: ',
+      validate: idInput => {
+        idInput = parseInt(idInput);
+        if (isNaN(idInput)) {
+          console.log("\nPlease enter the numeric Employee ID!");
+          return false;
+        } else {
+          return true;
+        }
+      }
+    }
+  ]).then(answer => {
+    myQuery.deleteEmployee(parseInt(answer.id));
+    return goToMainMenu('Delete');
+  }).catch(err => {
+    console.log(err);
+  });
+}
+
 // Confirm if the user want to go back to the main menu
 function goToMainMenu(menu){
   console.clear();
@@ -271,8 +355,10 @@ function goToMainMenu(menu){
         viewMenu();
       } else if (menu === 'Add') {
         addMenu();
-      } else {
+      } else if(menu === 'Update') {
         updateMenu();
+      } else {
+        deleteMenu();
       }
     }
   }).catch(err => {
@@ -320,7 +406,7 @@ function addMenu(){
     {
       type: 'list',
       name: 'addMenu',
-      message: "Add Menu",
+      message: "ADD MENU",
       choices: ['Departments', 'Roles', 'Employees'], 
     }
   ]).then(answer => {
@@ -344,7 +430,7 @@ function updateMenu(){
     {
       type: 'list',
       name: 'updateMenu',
-      message: "Update Menu",
+      message: "UPDATE MENU",
       choices: ["Employee's Role", "Employee's Manager"], 
     }
   ]).then(answer => {
@@ -359,6 +445,30 @@ function updateMenu(){
   });
 }
 
+// Delete Menu
+function deleteMenu(){
+  console.clear();
+  inquirer.prompt([
+    {
+      type: 'list',
+      name: 'deleteMenu',
+      message: "DELETE MENU",
+      choices: ["Department", "Role", "Employee"], 
+    }
+  ]).then(answer => {
+    answer = JSON.stringify(answer);
+    if (answer.includes("Department")) {
+      deleteDept()
+    } else if (answer.includes("Role")) {
+      deleteRole();
+    } else {
+      deleteEmployee();
+    } 
+  }).catch(err => {
+    console.log(err);
+  });
+}
+
 // Main Input prompt
 function mainMenu(){
   console.clear();
@@ -366,7 +476,7 @@ function mainMenu(){
     {
       type: 'list',
       name: 'mainMenu',
-      message: "Main Menu",
+      message: "MAIN MENU",
       choices: ['View', 'Add', 'Update', 'Delete', 'Exit'],
       default: 'View',
     }
@@ -379,6 +489,8 @@ function mainMenu(){
       return addMenu();
     } else if (answer.includes("Update")) {
       return updateMenu();
+    } else if (answer.includes("Delete")) {
+      return deleteMenu();
     } else {
       // Close connection to the Database
       console.log("Good Bye...");

@@ -23,7 +23,7 @@ class MyQuery {
                     r.title as Role, d.name AS Department, CONCAT('$ ',FORMAT(r.salary, 2)) AS Salary, 
                     CONCAT(e2.first_name, ' ', e2.last_name) AS 'Manager/Lead'
                  FROM employee e
-                    JOIN role r ON r.id = e.role_id
+                    RIGHT JOIN role r ON r.id = e.role_id
                     JOIN department d ON d.id = r.department_id
                     LEFT JOIN employee e2 ON e.manager_id=e2.id
                     ORDER BY e.id`;
@@ -59,7 +59,7 @@ class MyQuery {
                     r.title as Role, d.name AS Department, CONCAT('$ ',FORMAT(r.salary, 2)) AS Salary, 
                     CONCAT(e2.first_name, ' ', e2.last_name) AS 'Manager/Lead'
                  FROM employee e
-                    JOIN role r ON r.id = e.role_id
+                    RIGHT JOIN role r ON r.id = e.role_id
                     JOIN department d ON d.id = r.department_id
                     LEFT JOIN employee e2 ON e.manager_id=e2.id
                     ORDER BY COALESCE(e.manager_id, e.id), CONCAT(e2.first_name, ' ', e2.last_name)`;
@@ -78,7 +78,7 @@ class MyQuery {
                     r.title as Role, d.name AS Department, CONCAT('$ ',FORMAT(r.salary, 2)) AS Salary, 
                     CONCAT(e2.first_name, ' ', e2.last_name) AS 'Manager/Lead'
                  FROM employee e
-                    JOIN role r ON r.id = e.role_id
+                    RIGHT JOIN role r ON r.id = e.role_id
                     JOIN department d ON d.id = r.department_id
                     LEFT JOIN employee e2 ON e.manager_id=e2.id
                     ORDER BY d.name`;
@@ -150,17 +150,6 @@ class MyQuery {
     });
   }
 
-  // Query for deleting department
-  deleteDepartment(deptId) {
-    const sql = `DELETE FROM department WHERE id=${deptId}`;
-    db.query(sql, (err, result) => {
-      if (err){
-        return console.log(err.message);
-      }
-      console.log(`\nDepartment ID '${deptId}' has been deleted!`);
-    });
-  }
-
   // Query for updating role of an employee
   updateEmployeeRole(employeeId, roleId) {
     const sql = `UPDATE employee SET role_id=${roleId} WHERE id=${employeeId}`;
@@ -185,6 +174,39 @@ class MyQuery {
       }
       console.log(`\nRole for employee ID '${employeeId}' has been updated!`);
     });
+  }
+
+  // Query to remove selected department
+  deleteDepartment(departmentId) {
+    const sql = `DELETE FROM department WHERE id=${departmentId}`;
+    db.query(sql, (err, result) => {
+      if (err){
+        return console.log(err.message);
+      }
+      console.log(`\nDepartment ID# '${departmentId}' has been deleted!`);
+    });
+  }
+
+  // Query to remove selected role
+  deleteRole(roleId) {
+    const sql = `DELETE FROM role WHERE id=${roleId}`;
+    db.query(sql, (err, result) => {
+      if (err){
+        return console.log(err.message);
+      }
+      console.log(`\nRole ID# '${roleId}' has been deleted!`);
+    });
+  }
+
+  // Query to remove selected role
+  deleteEmployee(employeeId) {
+    const sql = `DELETE FROM employee WHERE id=${employeeId}`;
+    db.query(sql, (err, result) => {
+      if (err){
+        return console.log(err.message);
+      }
+      console.log(`\nEmployee with ID# '${employeeId}' has been deleted!`);
+    }); 
   }
 }
 
