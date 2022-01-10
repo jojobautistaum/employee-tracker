@@ -22,7 +22,7 @@ function addDept(){
     }
   ]).then(answer => {
     myQuery.addDepartment(answer.department);
-    return addMenu();
+    return goToMainMenu("Add");
   }).catch(err => {
     console.log(err);
   });
@@ -76,7 +76,7 @@ function addRole(){
       }
     ]).then(answer => {
       myQuery.addRole(answer.title, answer.salary, parseInt(answer.department));
-      return addMenu();
+      return goToMainMenu('Add');
     }).catch(err => {
       console.log(err);
     });
@@ -153,7 +153,7 @@ function addEmployee() {
         }
       ]).then(answer => {
         myQuery.addEmployee(answer.fName, answer.lName, parseInt(answer.role), parseInt(answer.manager));
-        return addMenu();
+        return goToMainMenu('Add');
       }).catch(err => {
         console.log(err);
       });
@@ -198,7 +198,7 @@ function updateEmployeeRole(){
       }
     ]).then(answer => {
       myQuery.updateEmployeeRole(answer.id, parseInt(answer.role));
-      mainMenu();
+      return goToMainMenu('Update');
     }).catch(err => {
       console.log(err);
     });
@@ -245,7 +245,7 @@ function updateEmployeeManager(){
       }
     ]).then(answer => {
       myQuery.updateEmployeeManager(answer.id, parseInt(answer.role));
-      mainMenu();
+      return goToMainMenu('Update');
     }).catch(err => {
       console.log(err);
     });
@@ -253,18 +253,27 @@ function updateEmployeeManager(){
 }
 
 // Confirm if the user want to go back to the main menu
-function goToMain(){
+function goToMainMenu(menu){
   console.clear();
   inquirer.prompt([
     {
       type: 'confirm',
       name: 'main',
-      message: "Go back to the main menu ",
+      message: "Go back to the Main Menu ",
       default: true
     }
   ]).then(answer => {
+    console.clear();
     if(answer.main) {
       mainMenu();
+    } else {
+      if (menu === 'View') {
+        viewMenu();
+      } else if (menu === 'Add') {
+        addMenu();
+      } else {
+        updateMenu();
+      }
     }
   }).catch(err => {
     console.log(err);
@@ -279,7 +288,7 @@ function viewMenu(){
       type: 'list',
       name: 'viewMenu',
       message: "View Menu ",
-      choices: ['Departments', 'Roles', 'Employees', 'Main Menu'], 
+      choices: ['Departments', 'Roles', 'Employees', 'Employee by Department', 'Employee by Manager'], 
     }
   ]).then(answer => {
     answer = JSON.stringify(answer);
@@ -289,12 +298,12 @@ function viewMenu(){
       myQuery.viewRoles();
     } else if (answer.includes("Employees")) {
       myQuery.viewEmployees();
+    } else if (answer.includes("by Department")) {
+      myQuery.viewEmployeeByDepartment();
     } else {
-      return mainMenu();
+      myQuery.viewEmployeeByManager();
     }
-  }).then(result => {
-    console.clear();
-    return viewMenu();
+    return goToMainMenu('View');
   }).catch(err => {
     console.log(err);
   });
@@ -308,19 +317,17 @@ function addMenu(){
       type: 'list',
       name: 'addMenu',
       message: "Add Menu",
-      choices: ['Departments', 'Roles', 'Employees', 'Main Menu'], 
+      choices: ['Departments', 'Roles', 'Employees'], 
     }
   ]).then(answer => {
     answer = JSON.stringify(answer);
     if (answer.includes("Departments")) {
-      return addDept();
+      addDept();
     } else if (answer.includes("Roles")) {
-      return addRole();
-    } else if (answer.includes("Employees")) {
-      return addEmployee();
+      addRole();
     } else {
-      return mainMenu();
-    }
+      addEmployee();
+    } 
   }).catch(err => {
     console.log(err);
   });
@@ -334,17 +341,15 @@ function updateMenu(){
       type: 'list',
       name: 'updateMenu',
       message: "Update Menu",
-      choices: ["Employee's Role", "Employee's Manager", "Main Menu"], 
+      choices: ["Employee's Role", "Employee's Manager"], 
     }
   ]).then(answer => {
     answer = JSON.stringify(answer);
     if (answer.includes("Role")) {
-      return updateEmployeeRole();
-    } else if (answer.includes("Manager")) {
-      return updateEmployeeManager();
+      updateEmployeeRole();
     } else {
-      return mainMenu();
-    }
+      updateEmployeeManager();
+    } 
   }).catch(err => {
     console.log(err);
   });
@@ -357,7 +362,7 @@ function mainMenu(){
     {
       type: 'list',
       name: 'mainMenu',
-      message: "What would you like to do? ",
+      message: "Main Menu",
       choices: ['View', 'Add', 'Update', , 'Exit'],
       default: 'View',
     }
