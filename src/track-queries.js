@@ -40,7 +40,7 @@ class MyQuery {
   viewBudgetByDepartment() {
     const sql = `SELECT d.name AS Department, CONCAT('$ ',FORMAT(SUM(r.salary), 2)) as 'Total Department Budget'
                  FROM employee e
-                    JOIN role r ON r.id = e.role_id
+                    RIGHT JOIN role r ON r.id = e.role_id
                     JOIN department d ON d.id = r.department_id
                     LEFT JOIN employee e2 ON e.manager_id=e2.id
                     GROUP BY d.name`;

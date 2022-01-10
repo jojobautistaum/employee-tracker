@@ -25,4 +25,5 @@ VALUES
 ('Johny', 'Walker', 5, NULL),
 ('Tom', 'Sawyer', 6, 5),
 ('Ever', 'Lasting', 7, NULL),
-('Joe', 'Rich', 8, 7);
+('Joe', 'Rich', 8, 7),
+('Jose', 'Luis', 1, 1);
