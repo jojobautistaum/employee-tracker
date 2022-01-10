@@ -28,8 +28,6 @@ function addDept(){
   });
 }
 
-
-
 // Input for Adding Role
 function addRole(){
   // Get list of Roles for dynamic list of choices
@@ -336,7 +334,7 @@ function deleteEmployee(){
   });
 }
 
-// Confirm if the user want to go back to the main menu
+// Confirm if the user want to go back to the Main Menu
 function goToMainMenu(menu){
   console.clear();
   inquirer.prompt([
@@ -373,7 +371,7 @@ function viewMenu(){
     {
       type: 'list',
       name: 'viewMenu',
-      message: "View Menu ",
+      message: "VIEW Menu ",
       choices: ['Departments', 'Roles', 'Employees', 'Employee by Department', 
                 'Employee by Manager', 'Total Department Budget'], 
     }
@@ -406,7 +404,7 @@ function addMenu(){
     {
       type: 'list',
       name: 'addMenu',
-      message: "ADD MENU",
+      message: "ADD Menu",
       choices: ['Departments', 'Roles', 'Employees'], 
     }
   ]).then(answer => {
@@ -430,7 +428,7 @@ function updateMenu(){
     {
       type: 'list',
       name: 'updateMenu',
-      message: "UPDATE MENU",
+      message: "UPDATE Menu",
       choices: ["Employee's Role", "Employee's Manager"], 
     }
   ]).then(answer => {
@@ -452,7 +450,7 @@ function deleteMenu(){
     {
       type: 'list',
       name: 'deleteMenu',
-      message: "DELETE MENU",
+      message: "DELETE Menu",
       choices: ["Department", "Role", "Employee"], 
     }
   ]).then(answer => {
@@ -476,7 +474,7 @@ function mainMenu(){
     {
       type: 'list',
       name: 'mainMenu',
-      message: "MAIN MENU",
+      message: "M A I N   M E N U",
       choices: ['View', 'Add', 'Update', 'Delete', 'Exit'],
       default: 'View',
     }
