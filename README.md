@@ -14,24 +14,26 @@
 
   ## Installation <a id="installation"></a>
   * In order to run this app, please install the following dependencies: <br />
-  **npm i express, inquirer, mysql2, dotenv**
 
-  * Database and Table creation then add some records. Make sure you are in the root directory of the app.
+  >> **`$ npm i express, inquirer, mysql2, dotenv`** <br />
+  >> **`$ npm i console.table --save`**
+
+  * Database and Table creation then add some records. Make sure you are in the root directory of the app:
   >> i.e. /c/Users/Jojo/Full-Stack-Developer/employee-tracker/
   1. Login to you mysql in the commandline: 
-  >> mysql -u root -p
+  >> **`$ mysql -u root -p`**
   2. Run the following to create the Database employee_tracker_db:
-  >> source db/db.sql
+  >> **`$ source db/db.sql`**
   3. Run the following to create the following tables: department, role and employee:
-  >> source db/schema.sql
+  >> **`$ source db/schema.sql`**
   4. Run the following to add rows to all tables:
-  >> source db/seeds.sql
+  >> **`$ source db/seeds.sql`**
 
   ## Usage <a id="usage"></a> 
   Run the following to start the app:
-  > npm start <br />
+  > **`$ npm start`** <br />
   > OR <br />
-  > node server.js
+  > **`$ node server.js`**
 
   ## Snapshots
   ### Menu
